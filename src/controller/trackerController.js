@@ -5,7 +5,7 @@ const addMovie = async (req, res) => {
 
     const { user_id, title, ticket_cost, theatre_name, watched_date, movie_format, theatre_format } = req.body;
 
-    if (!user_id || !title || !ticket_cost || !theatre_name || !watched_date) {
+    if (!user_id || !title || ticket_cost===undefined || !theatre_name || !watched_date) {
         return res.status(401).json({ msg: "All data required" });
     }
 
@@ -93,4 +93,43 @@ const updateMovieById = async (req, res) => {
     }
 }
 
-export { addMovie, getAllMovieByUserId, deleteMovieById, updateMovieById };
+const getMovieSummaryData = async (req, res) => {
+    const { userId } = req.params;
+    // const {title, theatre_name, watched_date, poster_url, ticket_cost, movie_format, theatre_format} = req.body;
+    try{
+        const totalMovies = await sql`
+SELECT COALESCE(COUNT(*), 0) as total_movies_count FROM movies WHERE user_id = ${userId};
+`;
+
+        const totalTicketCost = await sql`
+SELECT COALESCE(SUM(ticket_cost), 0) as total_spent FROM movies WHERE user_id = ${userId};
+`;
+
+        const mostExpensiveTicket = await sql`
+SELECT title, theatre_name, ticket_cost, watched_date, poster_url, movie_format, theatre_format 
+    FROM movies WHERE user_id = ${userId} ORDER BY ticket_cost DESC LIMIT 1;
+`;
+
+        const movie2DCount = await sql`
+SELECT COALESCE(COUNT(*), 0) as count_movie_2D FROM movies WHERE user_id = ${userId} AND movie_format = '2D';
+`;
+
+        const movie3DCount = await sql`
+            SELECT COALESCE(COUNT(*), 0) as count_movie_3D FROM movies WHERE user_id = ${userId} AND movie_format = '3D';
+`;
+
+        res.status(201).json({
+            totalMovies: totalMovies[0].total_movies_count,
+            totalTicketCost: totalTicketCost[0].total_spent,
+            mostExpensiveTicket: mostExpensiveTicket[0],
+            movie2DCount: movie2DCount[0],
+            movie3DCount: movie3DCount[0],
+        });
+
+    }catch (e) {
+        console.log("Error getting movie summaryData", e);
+        res.status(400).json({ msg: "Internal server error" });
+    }
+}
+
+export { addMovie, getAllMovieByUserId, deleteMovieById, updateMovieById, getMovieSummaryData };
