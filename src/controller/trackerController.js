@@ -111,19 +111,19 @@ SELECT title, theatre_name, ticket_cost, watched_date, poster_url, movie_format,
 `;
 
         const movie2DCount = await sql`
-SELECT COALESCE(COUNT(*), 0) as count_movie_2D FROM movies WHERE user_id = ${userId} AND movie_format = '2D';
+SELECT COALESCE(COUNT(*), 0) as "movie2DCount" FROM movies WHERE user_id = ${userId} AND movie_format = '2D';
 `;
 
         const movie3DCount = await sql`
-            SELECT COALESCE(COUNT(*), 0) as count_movie_3D FROM movies WHERE user_id = ${userId} AND movie_format = '3D';
+            SELECT COALESCE(COUNT(*), 0) as "movie3DCount" FROM movies WHERE user_id = ${userId} AND movie_format = '3D';
 `;
 
         res.status(201).json({
             totalMovies: totalMovies[0].total_movies_count,
             totalTicketCost: totalTicketCost[0].total_spent,
             mostExpensiveTicket: mostExpensiveTicket[0],
-            movie2DCount: movie2DCount[0],
-            movie3DCount: movie3DCount[0],
+            movie2DCount: movie2DCount[0].movie2DCount,
+            movie3DCount: movie3DCount[0].movie3DCount
         });
 
     }catch (e) {
