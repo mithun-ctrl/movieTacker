@@ -66,9 +66,9 @@ const deleteMovieById = async (req, res) => {
 
 const updateMovieById = async (req, res) => {
     const { id } = req.params;
-    const url = await posterUrl(title);
     const {title, ticket_cost, theatre_name, watched_date, movie_format, theatre_format, poster_url} = req.body;
     try {
+        const url = await posterUrl(title);
 
         const updatedMovie = await sql`
             UPDATE movies SET title = ${title},
