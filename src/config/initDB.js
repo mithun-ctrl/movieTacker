@@ -13,8 +13,8 @@ const initDatabase = async () => {
                 poster_url VARCHAR(255),
                 movie_format VARCHAR(3) DEFAULT '2D'
                     CHECK (movie_format IN ('2D', '3D')),
-                theatre_format VARCHAR(20) DEFAULT 'STANDARD'
-                    CHECK (theatre_format IN ('IMAX', '4DX', 'EPIQ', 'STANDARD'))
+                theatre_format VARCHAR(20) DEFAULT 'PVR'
+                    CHECK (theatre_format IN ('IMAX', '4DX', 'EPIQ', 'PVR', 'SINGLE SCREEN'))
             );
 
         `;
