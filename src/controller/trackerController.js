@@ -66,6 +66,7 @@ const deleteMovieById = async (req, res) => {
 
 const updateMovieById = async (req, res) => {
     const { id } = req.params;
+    const url = await posterUrl(title);
     const {title, ticket_cost, theatre_name, watched_date, movie_format, theatre_format, poster_url} = req.body;
     try {
 
@@ -76,7 +77,7 @@ const updateMovieById = async (req, res) => {
                 watched_date = ${watched_date},
                 movie_format = ${movie_format},
                 theatre_format = ${theatre_format},
-                poster_url = ${poster_url}
+                poster_url = ${url}
                 WHERE id = ${id}
             RETURNING *;
         `;
