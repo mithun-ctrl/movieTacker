@@ -1,9 +1,8 @@
 import sql from "../config/db.js";
-import posterUrl from "../libs/tmdb.js";
 
 const addMovie = async (req, res) => {
 
-    const { user_id, title, ticket_cost, theatre_name, watched_date, movie_format, theatre_format } = req.body;
+    const { user_id, title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format } = req.body;
 
     if (!user_id || !title || ticket_cost===undefined || !theatre_name || !watched_date) {
         return res.status(400).json({ msg: "All data required" });
@@ -11,11 +10,9 @@ const addMovie = async (req, res) => {
 
     try {
 
-        const url = await posterUrl(title);
-
         const movie = await sql`
             INSERT INTO movies (user_id, title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format)
-            VALUES (${user_id}, ${title}, ${ticket_cost}, ${theatre_name}, ${watched_date}, ${url}, ${movie_format}, ${theatre_format})
+            VALUES (${user_id}, ${title}, ${ticket_cost}, ${theatre_name}, ${watched_date}, ${poster_url}, ${movie_format}, ${theatre_format})
             RETURNING *;
         `;
 
@@ -66,10 +63,8 @@ const deleteMovieById = async (req, res) => {
 
 const updateMovieById = async (req, res) => {
     const { id } = req.params;
-    const {title, ticket_cost, theatre_name, watched_date, movie_format, theatre_format, poster_url} = req.body;
+    const {title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format} = req.body;
     try {
-        const url = await posterUrl(title);
-
         const updatedMovie = await sql`
             UPDATE movies SET title = ${title},
                 ticket_cost = ${ticket_cost},
@@ -77,7 +72,7 @@ const updateMovieById = async (req, res) => {
                 watched_date = ${watched_date},
                 movie_format = ${movie_format},
                 theatre_format = ${theatre_format},
-                poster_url = ${url}
+                poster_url = ${poster_url}
                 WHERE id = ${id}
             RETURNING *;
         `;
