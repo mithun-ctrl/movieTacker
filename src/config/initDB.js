@@ -14,11 +14,12 @@ const initDatabase = async () => {
                 movie_format VARCHAR(3) DEFAULT '2D'
                     CHECK (movie_format IN ('2D', '3D')),
                 theatre_format VARCHAR(20) DEFAULT 'PVR'
-                    CHECK (theatre_format IN ('IMAX', '4DX', 'EPIQ', 'PVR', 'DOLBY', 'SINGLE SCREEN', 'OTHER'))
+                    CHECK (theatre_format IN ('IMAX', '4DX', 'EPIQ', 'PVR', 'DOLBY', 'SINGLE SCREEN', 'OTHER')),
+                created_at TIMESTAMPTZ DEFAULT (NOW() AT TIME ZONE 'Asis/Kolkata')
             );
 
         `;
-        console.log("Connection successfull!!");
+        console.log("Connection successful!!");
 
     } catch (error) {
         console.log("error creating table ", error)

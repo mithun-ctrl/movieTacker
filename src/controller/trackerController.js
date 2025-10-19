@@ -122,10 +122,54 @@ const getMovieSummaryData = async (req, res) => {
             movie3DCount: movie3DCount[0].movie3DCount
         });
 
-    }catch (e) {
-        console.log("Error getting movie summaryData", e);
+    }catch (error) {
+        console.log("Error getting movie summaryData", error);
         res.status(500).json({ msg: "Internal server error" });
     }
 }
 
-export { addMovie, getAllMovieByUserId, deleteMovieById, updateMovieById, getMovieSummaryData };
+const getHistoryByDuration = async (req, res) => {
+    const {duration} = req.query;
+    const { userId } = req.params;
+    let intervalQuery="";
+
+    try {
+        switch (duration) {
+            case "week":
+                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '7 days'`;
+                break;
+            case "month":
+                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '1 month'`;
+                break;
+            case "year":
+                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '1 year'`;
+                break;
+            case "all":
+                intervalQuery = sql``;
+                break;
+            default:
+                return res.status(400).json({ msg: "Invalid duration. Use week, month, or year." });
+        }
+
+        const fetchHistory = await sql`
+                                SELECT *
+                                FROM movies
+                                WHERE user_id = ${userId} ${intervalQuery}
+                                ORDER BY watched_date DESC
+        `;
+
+        const totalMovies = await sql` SELECT COALESCE(COUNT(*), 0) as "totalMovies" FROM movies 
+        WHERE user_id = ${userId} ${intervalQuery}
+        `
+
+        res.status(200).json({
+            totalMovies: totalMovies[0].totalMovies,
+            fetchHistory: fetchHistory,
+        });
+    }catch (error) {
+        console.log("Error getting movie history data", error);
+        res.status(500).json({ msg: "Internal server error" });
+    }
+}
+
+export { addMovie, getAllMovieByUserId, deleteMovieById, updateMovieById, getMovieSummaryData, getHistoryByDuration };

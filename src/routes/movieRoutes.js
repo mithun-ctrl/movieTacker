@@ -3,7 +3,8 @@ import {
     deleteMovieById,
     getAllMovieByUserId,
     getMovieSummaryData,
-    updateMovieById
+    updateMovieById,
+    getHistoryByDuration
 } from "../controller/trackerController.js";
 
 import { Router } from "express";
@@ -16,5 +17,6 @@ router.get("/movie/:userId", getAllMovieByUserId);
 router.delete("/movie/:id", deleteMovieById);
 router.patch("/movie/:id", updateMovieById);
 router.get("/movie/summary/:userId", getMovieSummaryData);
+router.get("/movie/history/:userId", getHistoryByDuration);
 
 export default router;
