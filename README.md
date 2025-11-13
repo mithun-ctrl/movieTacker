@@ -8,7 +8,7 @@
     <li><strong>Node.js</strong> (latest LTS recommended)</li>
     <li><strong>npm</strong> or <strong>Yarn</strong></li>
     <li><strong>Git</strong> (optional)</li>
-    <li><strong>Database</strong> (MongoDB, PostgreSQL, MySQL, etc.)</li>
+    <li><strong>Database</strong> (PostgreSQL)</li>
 </ul>
 
 <hr>
@@ -16,8 +16,8 @@
 <h2>🚀 Installation Steps</h2>
 
 <h3>1. Clone the Repository</h3>
-<pre><code>git clone [YOUR_REPOSITORY_URL]
-cd cinedairy-api
+<pre><code>git clone https://github.com/mithun-ctrl/movieTacker
+cd movieTacker
 </code></pre>
 
 <h3>2. Install Dependencies</h3>
@@ -34,8 +34,9 @@ yarn install
 </ol>
 
 <pre><code>PORT=3000
-DATABASE_URL=mongodb://localhost:27017/cinedairy
-JWT_SECRET=your_super_secret_key
+DATABASE_URL=postgresql_db
+UPSTASH_REDIS_REST_URL=your_upstash_url_here
+UPSTASH_REDIS_REST_TOKEN=your_upstash_token_here
 </code></pre>
 
 <h3>4. Run the Application</h3>
@@ -57,8 +58,5 @@ yarn start
 <h2>✅ Next Steps</h2>
 <ul>
     <li>Test the API using Postman or Insomnia.</li>
-    <pre><code>GET http://localhost:3000/api/movies</code></pre>
-
-    <li>Seed the database (if supported):</li>
-    <pre><code>npm run seed</code></pre>
+    <pre><code>POST http://localhost:8000/api/v3/movie</code></pre>
 </ul>
