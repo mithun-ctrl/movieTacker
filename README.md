@@ -1,1 +1,64 @@
-<h1>CINEDAIRY APIM</h1>
+<h1>🎬 CINEDAIRY API Installation Guide</h1>
+<p>This guide explains how to install and run the <strong>CINEDAIRY API</strong>, a Node.js-based application.</p>
+
+<hr>
+
+<h2>📌 Prerequisites</h2>
+<ul>
+    <li><strong>Node.js</strong> (latest LTS recommended)</li>
+    <li><strong>npm</strong> or <strong>Yarn</strong></li>
+    <li><strong>Git</strong> (optional)</li>
+    <li><strong>Database</strong> (MongoDB, PostgreSQL, MySQL, etc.)</li>
+</ul>
+
+<hr>
+
+<h2>🚀 Installation Steps</h2>
+
+<h3>1. Clone the Repository</h3>
+<pre><code>git clone [YOUR_REPOSITORY_URL]
+cd cinedairy-api
+</code></pre>
+
+<h3>2. Install Dependencies</h3>
+<pre><code>npm install
+# OR
+yarn install
+</code></pre>
+
+<h3>3. Configure Environment Variables</h3>
+<ol>
+    <li>Create a <code>.env</code> file in the root directory.</li>
+    <li>Copy values from <code>.env.example</code> if available.</li>
+    <li>Update the required configuration fields.</li>
+</ol>
+
+<pre><code>PORT=3000
+DATABASE_URL=mongodb://localhost:27017/cinedairy
+JWT_SECRET=your_super_secret_key
+</code></pre>
+
+<h3>4. Run the Application</h3>
+
+<h4>Development Mode</h4>
+<pre><code>npm run dev
+# OR
+yarn dev
+</code></pre>
+
+<h4>Production Mode</h4>
+<pre><code>npm start
+# OR
+yarn start
+</code></pre>
+
+<hr>
+
+<h2>✅ Next Steps</h2>
+<ul>
+    <li>Test the API using Postman or Insomnia.</li>
+    <pre><code>GET http://localhost:3000/api/movies</code></pre>
+
+    <li>Seed the database (if supported):</li>
+    <pre><code>npm run seed</code></pre>
+</ul>
