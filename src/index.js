@@ -15,7 +15,7 @@ app.use(e.json());
 
 app.use("/api/v3", movieRoutes);
 
-app.get("/api/v3/health", async (req, res) => {
+app.get("/", async (req, res) => {
     res.status(200).send({
         status: "OK",
     });
