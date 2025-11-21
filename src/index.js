@@ -2,6 +2,11 @@ import express from "express";
 import { config as configDotenv } from "dotenv";
 import movieRoutes from "./routes/movieRoutes.js";
 import rateLimiter from "./config/rateLimiter.js";
+import path from "path"; 
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 configDotenv();
 
@@ -18,6 +23,14 @@ app.get("/", async (req, res) => {
         status: "OK",
     });
 })
+
+app.get("/privacy", (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "privacy.html"));
+});
+
+app.get("/deletion", (req, res) => {
+    res.sendFile(path.join(__dirname, "pages", "deletion.html"));
+});
 
 
 app.listen(PORT, () => {

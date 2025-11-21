@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account - Cinedairy</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            margin-top: 0;
+            color: #1f2937;
+            text-align: center;
+        }
+        p {
+            color: #4b5563;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box; /* Ensures padding doesn't expand width */
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            background-color: #ef4444; /* Red for warning/deletion */
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Delete Cinedairy Account</h2>
+    <p>We are sorry to see you go. Submitting this form will draft an email to our support team to permanently remove your data.</p>
+    
+    <form id="deleteForm">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" required placeholder="Your Name">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Registered Email</label>
+            <input type="email" id="email" required placeholder="email@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="reason">Reason (Optional)</label>
+            <textarea id="reason" rows="3" placeholder="Why are you leaving?"></textarea>
+        </div>
+
+        <button type="submit">Open Email Client</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // 1. Capture the values
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const reason = document.getElementById('reason').value;
+        const recipient = "vitsmithun01@gmail.com";
+
+        // 2. Construct the email subject and body
+        const subject = encodeURIComponent("Account Deletion Request - Cinedairy");
+        
+        const bodyContent = `Hello Support,
+
+I would like to request the deletion of my Cinedairy account and all associated data.
+
+User Details:
+- Name: ${name}
+- Registered Email: ${email}
+
+Reason for deletion: 
+${reason ? reason : "No reason provided."}
+
+Please confirm when the deletion is complete.
+
+Regards,
+${name}`;
+
+        const body = encodeURIComponent(bodyContent);
+
+        // 3. Open the mailto link
+        window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+    });
+</script>
+
+</body>
+</html>
