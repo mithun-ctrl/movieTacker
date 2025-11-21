@@ -11,11 +11,10 @@ import { Router } from "express";
 
 const router = Router();
 
-
 router.post("/movie", addMovie);
 router.get("/movie/:userId", getAllMovieByUserId);
-router.delete("/movie/:id", deleteMovieById);
-router.patch("/movie/:id", updateMovieById);
+router.delete("/movie/:userId/:movieId", deleteMovieById);
+router.patch("/movie/:userId/:movieId", updateMovieById);
 router.get("/movie/summary/:userId", getMovieSummaryData);
 router.get("/movie/history/:userId", getHistoryByDuration);
 

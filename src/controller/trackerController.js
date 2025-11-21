@@ -1,175 +1,202 @@
-import sql from "../config/db.js";
+import { db } from "../firebase.js";
 
+// -------------------------
+// ADD MOVIE
+// -------------------------
 const addMovie = async (req, res) => {
-
     const { user_id, title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format } = req.body;
 
-    if (!user_id || !title || ticket_cost===undefined || !theatre_name || !watched_date) {
+    if (!user_id || !title || ticket_cost === undefined || !theatre_name || !watched_date) {
         return res.status(400).json({ msg: "All data required" });
     }
 
     try {
+        const newMovieRef = db.ref(`users/${user_id}/movies`).push();
 
-        const movie = await sql`
-            INSERT INTO movies (user_id, title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format)
-            VALUES (${user_id}, ${title}, ${ticket_cost}, ${theatre_name}, ${watched_date}, ${poster_url}, ${movie_format}, ${theatre_format})
-            RETURNING *;
-        `;
+        const movieData = {
+            title,
+            ticket_cost,
+            theatre_name,
+            watched_date,
+            poster_url: poster_url || "",
+            movie_format: movie_format || "",
+            theatre_format: theatre_format || "",
+            created_at: new Date().toISOString()
+        };
 
-        res.status(201).json(movie[0]);
+        await newMovieRef.set(movieData);
+
+        res.status(201).json({ id: newMovieRef.key, ...movieData });
 
     } catch (error) {
         console.log("Error posting movie", error);
         res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
+
+// -------------------------
+// GET ALL MOVIES BY USER
+// -------------------------
 const getAllMovieByUserId = async (req, res) => {
-
     const { userId } = req.params;
 
     try {
+        const snapshot = await db.ref(`users/${userId}/movies`).once("value");
+        const movies = snapshot.val() || {};
 
-        const movies = await sql`
-            SELECT * FROM movies WHERE user_id = ${userId} ORDER BY id DESC;
-        `
-        res.status(200).json(movies);
+        // Convert object → array
+        const movieList = Object.entries(movies).map(([id, movie]) => ({
+            id,
+            ...movie
+        }));
+
+        res.status(200).json(movieList.reverse());
 
     } catch (error) {
         console.log("Error fetching movie", error);
         res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
+
+// -------------------------
+// DELETE MOVIE
+// -------------------------
 const deleteMovieById = async (req, res) => {
-
-    const { id } = req.params;
+    const { userId, movieId } = req.params;
 
     try {
+        const movieRef = db.ref(`users/${userId}/movies/${movieId}`);
 
-        const movie = await sql`
-            DELETE FROM movies WHERE id = ${id} RETURNING *;
-        `
-        if (movie.length === 0) {
-            return res.status(404).json({ msg: "Movie Not found" });
+        const snapshot = await movieRef.once("value");
+        if (!snapshot.exists()) {
+            return res.status(404).json({ msg: "Movie Not Found" });
         }
+
+        await movieRef.remove();
         res.status(200).json({ msg: "Removed Successfully" });
 
     } catch (error) {
         console.log("Error deleting movie", error);
         res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
+
+
+// -------------------------
+// UPDATE MOVIE
+// -------------------------
 const updateMovieById = async (req, res) => {
-    const { id } = req.params;
-    const {title, ticket_cost, theatre_name, watched_date, poster_url, movie_format, theatre_format} = req.body;
-    try {
-        const updatedMovie = await sql`
-            UPDATE movies SET title = ${title},
-                ticket_cost = ${ticket_cost},
-                theatre_name = ${theatre_name},
-                watched_date = ${watched_date},
-                movie_format = ${movie_format},
-                theatre_format = ${theatre_format},
-                poster_url = ${poster_url}
-                WHERE id = ${id}
-            RETURNING *;
-        `;
+    const { userId, movieId } = req.params;
+    const updates = req.body;
 
-        if (updatedMovie.length === 0) {
+    try {
+        const movieRef = db.ref(`users/${userId}/movies/${movieId}`);
+
+        const snapshot = await movieRef.once("value");
+        if (!snapshot.exists()) {
             return res.status(404).json({ msg: "Movie Not found" });
         }
 
-        res.status(200).json(updatedMovie[0]);
+        await movieRef.update(updates);
+
+        const updatedData = (await movieRef.once("value")).val();
+
+        res.status(200).json({ id: movieId, ...updatedData });
 
     } catch (error) {
         console.log("Error updating movie", error);
         res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
+
+
+// -------------------------
+// MOVIE SUMMARY
+// -------------------------
 const getMovieSummaryData = async (req, res) => {
     const { userId } = req.params;
-    
-    try{
-        const totalMovies = await sql`
-            SELECT COALESCE(COUNT(*), 0) as total_movies_count FROM movies WHERE user_id = ${userId};
-        `;
-
-        const totalTicketCost = await sql`
-            SELECT COALESCE(SUM(ticket_cost), 0) as total_spent FROM movies WHERE user_id = ${userId};
-        `;
-
-        const mostExpensiveTicket = await sql`
-            SELECT title, theatre_name, ticket_cost, watched_date, poster_url, movie_format, theatre_format 
-            FROM movies WHERE user_id = ${userId} ORDER BY ticket_cost DESC LIMIT 1;
-        `;
-
-        const movie2DCount = await sql`
-            SELECT COALESCE(COUNT(*), 0) as "movie2DCount" FROM movies WHERE user_id = ${userId} AND movie_format = '2D';
-        `;
-
-        const movie3DCount = await sql`
-            SELECT COALESCE(COUNT(*), 0) as "movie3DCount" FROM movies WHERE user_id = ${userId} AND movie_format = '3D';
-        `;
-
-        res.status(200).json({
-            totalMovies: totalMovies[0].total_movies_count,
-            totalTicketCost: totalTicketCost[0].total_spent,
-            mostExpensiveTicket: mostExpensiveTicket[0] || null,
-            movie2DCount: movie2DCount[0].movie2DCount,
-            movie3DCount: movie3DCount[0].movie3DCount
-        });
-
-    }catch (error) {
-        console.log("Error getting movie summaryData", error);
-        res.status(500).json({ msg: "Internal server error" });
-    }
-}
-
-const getHistoryByDuration = async (req, res) => {
-    const {duration} = req.query;
-    const { userId } = req.params;
-    let intervalQuery="";
 
     try {
-        switch (duration) {
-            case "week":
-                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '7 days'`;
-                break;
-            case "month":
-                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '1 month'`;
-                break;
-            case "year":
-                intervalQuery = sql`AND watched_date >= NOW() - INTERVAL '1 year'`;
-                break;
-            case "all":
-                intervalQuery = sql``;
-                break;
-            default:
-                return res.status(400).json({ msg: "Invalid duration. Use week, month, or year." });
-        }
+        const snapshot = await db.ref(`users/${userId}/movies`).once("value");
+        const movies = snapshot.val() || {};
 
-        const fetchHistory = await sql`
-                                SELECT *
-                                FROM movies
-                                WHERE user_id = ${userId} ${intervalQuery}
-                                ORDER BY watched_date DESC
-        `;
+        const list = Object.values(movies);
 
-        const totalMovies = await sql` SELECT COALESCE(COUNT(*), 0) as "totalMovies" FROM movies 
-        WHERE user_id = ${userId} ${intervalQuery}
-        `
+        // summary
+        const totalMovies = list.length;
+        const totalTicketCost = list.reduce((sum, m) => sum + Number(m.ticket_cost || 0), 0);
+
+        const mostExpensiveTicket = list.reduce(
+            (max, m) => Number(m.ticket_cost) > Number(max.ticket_cost) ? m : max,
+            list[0] || null
+        );
+
+        const movie2DCount = list.filter(m => m.movie_format === "2D").length;
+        const movie3DCount = list.filter(m => m.movie_format === "3D").length;
 
         res.status(200).json({
-            totalMovies: totalMovies[0].totalMovies,
-            fetchHistory: fetchHistory,
+            totalMovies,
+            totalTicketCost,
+            mostExpensiveTicket,
+            movie2DCount,
+            movie3DCount
         });
-    }catch (error) {
-        console.log("Error getting movie history data", error);
+
+    } catch (error) {
+        console.log("Error getting summary", error);
         res.status(500).json({ msg: "Internal server error" });
     }
-}
+};
 
-export { addMovie, getAllMovieByUserId, deleteMovieById, updateMovieById, getMovieSummaryData, getHistoryByDuration };
+
+// -------------------------
+// GET HISTORY BY DURATION
+// -------------------------
+const getHistoryByDuration = async (req, res) => {
+    const { duration } = req.query;
+    const { userId } = req.params;
+
+    try {
+        const snapshot = await db.ref(`users/${userId}/movies`).once("value");
+        const movies = snapshot.val() || {};
+
+        const list = Object.entries(movies).map(([id, data]) => ({
+            id,
+            ...data
+        }));
+
+        const now = new Date();
+
+        const filtered = list.filter(movie => {
+            const watched = new Date(movie.watched_date);
+
+            if (duration === "week") return watched >= new Date(now - 7 * 86400000);
+            if (duration === "month") return watched >= new Date(now.setMonth(now.getMonth() - 1));
+            if (duration === "year") return watched >= new Date(now.setFullYear(now.getFullYear() - 1));
+            return true;
+        });
+
+        res.status(200).json({
+            totalMovies: filtered.length,
+            fetchHistory: filtered.sort((a, b) => new Date(b.watched_date) - new Date(a.watched_date))
+        });
+
+    } catch (error) {
+        console.log("Error getting movie history", error);
+        res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+
+export {
+    addMovie,
+    getAllMovieByUserId,
+    deleteMovieById,
+    updateMovieById,
+    getMovieSummaryData,
+    getHistoryByDuration
+};

@@ -1,17 +1,15 @@
-import e from "express";
-import { configDotenv } from "dotenv";
-import initDatabase from "./config/initDB.js"
+import express from "express";
+import { config as configDotenv } from "dotenv";
 import movieRoutes from "./routes/movieRoutes.js";
 import rateLimiter from "./config/rateLimiter.js";
 
 configDotenv();
 
-const app = e();
-
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
+const app = express();
 
 app.use(rateLimiter);
-app.use(e.json());
+app.use(express.json());
 
 app.use("/api/v3", movieRoutes);
 
@@ -21,10 +19,7 @@ app.get("/", async (req, res) => {
     });
 })
 
-initDatabase().then(() =>{
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
-
-
