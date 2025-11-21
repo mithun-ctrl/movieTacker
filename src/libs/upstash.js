@@ -1,9 +1,10 @@
 import {Redis} from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
+import Config from "../config/Config.js";
 
 const redis = new Redis({
-    url: 'https://funny-mustang-37089.upstash.io',
-    token: 'AZDhAAIncDIxZmE1YmU2ZTI0OTU0YWYxOTdjMmJlODgyZWY4MjBkZHAyMzcwODk',
+    url: Config.UPSTASH_REDIS_REST_URL,
+    token: Config.UPSTASH_REDIS_REST_TOKEN,
 });
 
 const rateLimit = new Ratelimit({
