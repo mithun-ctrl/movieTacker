@@ -1,7 +1,10 @@
 import {Redis} from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-const redis = Redis.fromEnv();
+const redis = new Redis({
+    url: 'https://funny-mustang-37089.upstash.io',
+    token: 'AZDhAAIncDIxZmE1YmU2ZTI0OTU0YWYxOTdjMmJlODgyZWY4MjBkZHAyMzcwODk',
+});
 
 const rateLimit = new Ratelimit({
     redis,
