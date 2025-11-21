@@ -24,11 +24,11 @@ app.get("/", async (req, res) => {
     });
 })
 
-app.get("/privacy", (req, res) => {
+app.get("/privacy-policy", (req, res) => {
     res.sendFile(path.join(__dirname, "pages", "privacy.html"));
 });
 
-app.get("/deletion", (req, res) => {
+app.get("/delete-account", (req, res) => {
     res.sendFile(path.join(__dirname, "pages", "deletion.html"));
 });
 
